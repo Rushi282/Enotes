@@ -2,13 +2,16 @@ package com.enote.service;
 
 import java.util.Collection;
 
-import com.enote.entity.Category;
+import com.enote.dto.CategoryDto;
+import com.enote.dto.CategoryResponse;
 
 public interface ICategoryService {
 
-	Boolean add(Category category);
+	Boolean add(CategoryDto category);
 	
-	Collection<Category> all();
+	Collection<CategoryDto> all();
+
+	Collection<CategoryResponse> activeCategory();
 	
 	
 }
