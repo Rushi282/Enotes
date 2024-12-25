@@ -12,6 +12,10 @@ public interface ICategoryService {
 	Collection<CategoryDto> all();
 
 	Collection<CategoryResponse> activeCategory();
+
+	CategoryDto categoryById(Integer id);
+
+	Boolean deleteCategory(Integer id);
 	
 	
 }

@@ -43,7 +43,10 @@ public class CategoryService implements ICategoryService {
 
 	@Override
 	public Collection<CategoryDto> all() {
-		 List<Category> categories = categoryRepo.findAll();
+//		 List<Category> categories = categoryRepo.findAll();
+		List<Category> categories = categoryRepo.findByIsDeletedFalse();
+		 
+		 
 //		 List<CategoryDto> categoryDtos = new ArrayList<>();
 //		 categories.stream().forEach(cat -> 
 //					 {
@@ -65,8 +68,24 @@ public class CategoryService implements ICategoryService {
 
 	@Override
 	public Collection<CategoryResponse> activeCategory() {
-		List<Category> categories = categoryRepo.findByIsActiveTrue();
+//		List<Category> categories = categoryRepo.findByIsActiveTrue();
+		List<Category> categories = categoryRepo.findByIsActiveTrueAndIsDeletedFalse();
 		return categories.stream().map(cat -> mapper.map(cat, CategoryResponse.class)).toList();
+	}
+
+	@Override
+	public CategoryDto categoryById(Integer id) {
+//		Category foundCat = categoryRepo.findById(id).orElseThrow(()-> new RuntimeException("category not found of id: "+id));
+		Category foundCat = categoryRepo.findByIdAndIsDeletedFalse(id).orElseThrow(()-> new RuntimeException("category not found of id: "+id));
+		return mapper.map(foundCat, CategoryDto.class);
+	}
+
+	@Override
+	public Boolean deleteCategory(Integer id) {
+		Category foundCat = categoryRepo.findById(id).orElseThrow(()-> new RuntimeException("category not found of id: "+id));
+		foundCat.setIsDeleted(true);
+		categoryRepo.save(foundCat);
+		return true;
 	}
 
 }

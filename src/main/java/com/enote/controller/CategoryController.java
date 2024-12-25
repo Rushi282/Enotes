@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +35,7 @@ public class CategoryController {
 		}
 	}
 	
-	@GetMapping("/category")
+	@GetMapping("/")
 	public ResponseEntity<?> getAllCategory(){
 		Collection<CategoryDto> allCategories = categoryService.all();
 		if(CollectionUtils.isEmpty(allCategories)) {
@@ -52,4 +54,21 @@ public class CategoryController {
 			return ResponseEntity.ok(allCategories);
 		}
 	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getCategoryById(@PathVariable Integer id){
+		CategoryDto categoryDto = categoryService.categoryById(id);
+		return ResponseEntity.ok(categoryDto);
+	}
+	
+	@DeleteMapping("delete/{id}")
+	public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id){
+		Boolean isDeleted = categoryService.deleteCategory(id);
+		if(isDeleted) {
+			return ResponseEntity.ok("Category deleted successfully");
+		}else {
+			return new ResponseEntity<>("Failed to delete Category",HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 }
