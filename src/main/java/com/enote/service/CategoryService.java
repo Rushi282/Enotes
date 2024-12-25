@@ -31,14 +31,28 @@ public class CategoryService implements ICategoryService {
 //		category.setIsActive(categoryDto.getIsActive());
 		
 		Category category = mapper.map(categoryDto, Category.class);
-		category.setIsDeleted(false);
-		category.setCreatedOn(new Date());
-
+		
+		if(ObjectUtils.isEmpty(category.getId())) {
+			category.setIsDeleted(false);
+			category.setCreatedOn(new Date());
+		}else {
+			updateCategory(category);
+		}
 		Category savedCategory = categoryRepo.save(category);
 		if (ObjectUtils.isEmpty(savedCategory)) {
 			return false;
 		}
 		return true;
+	}
+
+	private void updateCategory(Category category) {
+		Category existingCategory = categoryRepo.findById(category.getId()).orElseThrow(() -> new RuntimeException("category not found of id: "+category.getId()));
+		
+		category.setCreatedBy(existingCategory.getCreatedBy());
+		category.setCreatedOn(existingCategory.getCreatedOn());
+		category.setIsDeleted(existingCategory.getIsDeleted());
+		category.setUpdatedBy(null);
+		category.setUpdatedOn(new Date());
 	}
 
 	@Override
