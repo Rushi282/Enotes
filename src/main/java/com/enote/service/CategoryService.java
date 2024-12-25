@@ -13,6 +13,7 @@ import com.enote.dao.CategoryRepository;
 import com.enote.dto.CategoryDto;
 import com.enote.dto.CategoryResponse;
 import com.enote.entity.Category;
+import com.enote.exception.ResourceNotFoundException;
 
 @Service
 public class CategoryService implements ICategoryService {
@@ -24,7 +25,7 @@ public class CategoryService implements ICategoryService {
 	private ModelMapper mapper;
 
 	@Override
-	public Boolean add(CategoryDto categoryDto) {
+	public Boolean add(CategoryDto categoryDto) throws Exception {
 //		Category category = new Category();
 //		category.setName(categoryDto.getName());
 //		category.setDescription(categoryDto.getDescription());
@@ -40,13 +41,14 @@ public class CategoryService implements ICategoryService {
 		}
 		Category savedCategory = categoryRepo.save(category);
 		if (ObjectUtils.isEmpty(savedCategory)) {
-			return false;
+			throw new Exception("Failed to add Category");
 		}
 		return true;
 	}
 
 	private void updateCategory(Category category) {
-		Category existingCategory = categoryRepo.findById(category.getId()).orElseThrow(() -> new RuntimeException("category not found of id: "+category.getId()));
+		Category existingCategory = categoryRepo.findById(category.getId())
+				.orElseThrow(() -> new ResourceNotFoundException("category not found of id: "+ category.getId()));
 		
 		category.setCreatedBy(existingCategory.getCreatedBy());
 		category.setCreatedOn(existingCategory.getCreatedOn());
@@ -90,13 +92,15 @@ public class CategoryService implements ICategoryService {
 	@Override
 	public CategoryDto categoryById(Integer id) {
 //		Category foundCat = categoryRepo.findById(id).orElseThrow(()-> new RuntimeException("category not found of id: "+id));
-		Category foundCat = categoryRepo.findByIdAndIsDeletedFalse(id).orElseThrow(()-> new RuntimeException("category not found of id: "+id));
+		Category foundCat = categoryRepo.findByIdAndIsDeletedFalse(id)
+				.orElseThrow(()-> new ResourceNotFoundException("category not found of id: "+id));
 		return mapper.map(foundCat, CategoryDto.class);
 	}
 
 	@Override
 	public Boolean deleteCategory(Integer id) {
-		Category foundCat = categoryRepo.findById(id).orElseThrow(()-> new RuntimeException("category not found of id: "+id));
+		Category foundCat = categoryRepo.findById(id)
+				.orElseThrow(()-> new ResourceNotFoundException("category not found of id: "+id));
 		foundCat.setIsDeleted(true);
 		categoryRepo.save(foundCat);
 		return true;

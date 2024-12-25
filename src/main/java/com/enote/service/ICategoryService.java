@@ -7,7 +7,7 @@ import com.enote.dto.CategoryResponse;
 
 public interface ICategoryService {
 
-	Boolean add(CategoryDto category);
+	Boolean add(CategoryDto category) throws Exception;
 	
 	Collection<CategoryDto> all();
 

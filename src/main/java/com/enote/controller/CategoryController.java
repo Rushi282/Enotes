@@ -26,13 +26,9 @@ public class CategoryController {
 	private ICategoryService categoryService;
 
 	@PostMapping("/add-category")
-	public ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryDto){
-		Boolean isAdded = categoryService.add(categoryDto);
-		if(isAdded) {
-			return new ResponseEntity<>("Category added successfully.",HttpStatus.CREATED);
-		}else {
-			return new ResponseEntity<>("Failed to add Category",HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	public ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryDto) throws Exception{
+		categoryService.add(categoryDto);
+		return new ResponseEntity<>("Category added successfully.",HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/")
@@ -62,12 +58,12 @@ public class CategoryController {
 	}
 	
 	@DeleteMapping("delete/{id}")
-	public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id){
+	public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id) throws Exception{
 		Boolean isDeleted = categoryService.deleteCategory(id);
 		if(isDeleted) {
 			return ResponseEntity.ok("Category deleted successfully");
 		}else {
-			return new ResponseEntity<>("Failed to delete Category",HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new Exception("failed to delete");
 		}
 	}
 	
