@@ -18,4 +18,10 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException e) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
 	}
+	
+//	ResourceAlreadyExistException
+	@ExceptionHandler(ResourceAlreadyExistException.class)
+	public ProblemDetail handleResourceAlreadyExistException(ResourceAlreadyExistException e) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+	}
 }

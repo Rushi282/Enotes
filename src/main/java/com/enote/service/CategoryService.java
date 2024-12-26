@@ -12,6 +12,7 @@ import com.enote.dao.CategoryRepository;
 import com.enote.dto.CategoryDto;
 import com.enote.dto.CategoryResponse;
 import com.enote.entity.Category;
+import com.enote.exception.ResourceAlreadyExistException;
 import com.enote.exception.ResourceNotFoundException;
 
 @Service
@@ -29,6 +30,11 @@ public class CategoryService implements ICategoryService {
 //		category.setName(categoryDto.getName());
 //		category.setDescription(categoryDto.getDescription());
 //		category.setIsActive(categoryDto.getIsActive());
+		
+		Boolean isexist = categoryRepo.existsByName(categoryDto.getName());
+		if(isexist) {
+			throw new ResourceAlreadyExistException(categoryDto.getName()+" category is already present");
+		}
 		
 		Category category = mapper.map(categoryDto, Category.class);
 		
