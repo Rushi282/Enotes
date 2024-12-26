@@ -1,7 +1,6 @@
 package com.enote.service;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -35,7 +34,8 @@ public class CategoryService implements ICategoryService {
 		
 		if(ObjectUtils.isEmpty(category.getId())) {
 			category.setIsDeleted(false);
-			category.setCreatedOn(new Date());
+//			category.setCreatedBy(null);
+//			category.setCreatedOn(new Date());
 		}else {
 			updateCategory(category);
 		}
@@ -53,8 +53,8 @@ public class CategoryService implements ICategoryService {
 		category.setCreatedBy(existingCategory.getCreatedBy());
 		category.setCreatedOn(existingCategory.getCreatedOn());
 		category.setIsDeleted(existingCategory.getIsDeleted());
-		category.setUpdatedBy(null);
-		category.setUpdatedOn(new Date());
+//		category.setUpdatedBy(null);
+//		category.setUpdatedOn(new Date());
 	}
 
 	@Override
