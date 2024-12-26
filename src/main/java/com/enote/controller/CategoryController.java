@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.enote.dto.CategoryDto;
 import com.enote.dto.CategoryResponse;
+import com.enote.dto.GenericResponse;
 import com.enote.service.ICategoryService;
 
 @RestController
@@ -28,16 +29,17 @@ public class CategoryController {
 	@PostMapping("/add-category")
 	public ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryDto) throws Exception{
 		categoryService.add(categoryDto);
-		return new ResponseEntity<>("Category added successfully.",HttpStatus.CREATED);
+//		return new ResponseEntity<>("Category added successfully.",HttpStatus.CREATED);
+		return GenericResponse.buildResponse("Success", "Category added.", null, HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/")
 	public ResponseEntity<?> getAllCategory(){
 		Collection<CategoryDto> allCategories = categoryService.all();
 		if(CollectionUtils.isEmpty(allCategories)) {
-			return ResponseEntity.noContent().build();
+			return GenericResponse.buildResponse("Success", "Categories not available.", allCategories, HttpStatus.NO_CONTENT);
 		}else {
-			return ResponseEntity.ok(allCategories);
+			return GenericResponse.buildResponse("Success", "All Categories", allCategories, HttpStatus.OK);
 		}
 	}
 	
@@ -45,23 +47,23 @@ public class CategoryController {
 	public ResponseEntity<?> getAllActiveCategory(){
 		Collection<CategoryResponse> allCategories = categoryService.activeCategory();
 		if(CollectionUtils.isEmpty(allCategories)) {
-			return ResponseEntity.noContent().build();
+			return GenericResponse.buildResponse("Success", "Categories not available.", allCategories, HttpStatus.NO_CONTENT);
 		}else {
-			return ResponseEntity.ok(allCategories);
+			return GenericResponse.buildResponse("Success", "All Categories", allCategories, HttpStatus.OK);
 		}
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getCategoryById(@PathVariable Integer id){
 		CategoryDto categoryDto = categoryService.categoryById(id);
-		return ResponseEntity.ok(categoryDto);
+		return GenericResponse.buildResponse("Success", "Found category", categoryDto, HttpStatus.OK);
 	}
 	
 	@DeleteMapping("delete/{id}")
 	public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id) throws Exception{
 		Boolean isDeleted = categoryService.deleteCategory(id);
 		if(isDeleted) {
-			return ResponseEntity.ok("Category deleted successfully");
+			return GenericResponse.buildResponse("Success", "Category deleted successfully.", null, HttpStatus.OK);
 		}else {
 			throw new Exception("failed to delete");
 		}
