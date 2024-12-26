@@ -32,4 +32,7 @@ public class Note extends BaseEntity{
 	@ManyToOne
 	private Category category;
 	
+	@ManyToOne
+	private FileDetails fileDetails;
+	
 }
