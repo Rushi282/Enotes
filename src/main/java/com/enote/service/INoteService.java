@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enote.dto.NoteDto;
+import com.enote.entity.FileDetails;
 
 public interface INoteService {
 
@@ -14,4 +15,8 @@ public interface INoteService {
 	NoteDto addNoteWithFile(NoteDto noteDto, MultipartFile file) throws IOException;
 	
 	Collection<NoteDto> getAllNotes();
+	
+	byte[] downloadFile(FileDetails foundFileDetails) throws IOException;
+	
+	public FileDetails getFileDetails(Integer id);
 }

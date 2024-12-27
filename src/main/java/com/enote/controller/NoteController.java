@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.enote.dto.GenericResponse;
 import com.enote.dto.NoteDto;
+import com.enote.entity.FileDetails;
 import com.enote.service.NoteService;
+import com.enote.util.CommonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +47,17 @@ public class NoteController {
 		return GenericResponse.buildResponse("Success", "Note created", addedNote, HttpStatus.CREATED);
 	}
 	
+	@GetMapping("/download/{id}")
+	public ResponseEntity<?> downloadFile(@PathVariable Integer id) throws IOException{
+		FileDetails foundFileDetails = noteService.getFileDetails(id);
+		byte[] file = noteService.downloadFile(foundFileDetails);
+		HttpHeaders headers = new HttpHeaders();
+		String contentType = CommonUtil.getContentType(foundFileDetails.getOriginalFileName());
+		headers.setContentType(MediaType.parseMediaType(contentType));
+		headers.setContentDispositionFormData("attachment", foundFileDetails.getOriginalFileName());
+		return ResponseEntity.ok().headers(headers).body(file);
+	}
+
 	private NoteDto convertToNoteDto(String noteString) throws JsonMappingException, JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(noteString, NoteDto.class);
