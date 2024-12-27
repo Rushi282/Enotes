@@ -1,5 +1,6 @@
 package com.enote.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -30,6 +31,10 @@ public class NoteDto {
 	private Date updatedOn;
 	
 	private FileDto fileDetails;
+	
+	private Boolean isDeleted;
+	
+	private LocalDateTime deletedOn;
 	
 	@NoArgsConstructor
 	@AllArgsConstructor

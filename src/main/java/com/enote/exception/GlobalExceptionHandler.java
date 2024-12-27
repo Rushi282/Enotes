@@ -39,4 +39,10 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleFileNotFoundException(FileNotFoundException e) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
 	}
+	
+//	IllegalArgumentException
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ProblemDetail handleIllegalArgumentException(IllegalArgumentException e) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+	}
 }

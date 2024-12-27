@@ -2,12 +2,14 @@ package com.enote.controller;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +24,7 @@ import com.enote.dto.GenericResponse;
 import com.enote.dto.NoteDto;
 import com.enote.dto.NotePageDto;
 import com.enote.entity.FileDetails;
-import com.enote.service.NoteService;
+import com.enote.service.INoteService;
 import com.enote.util.CommonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -33,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NoteController {
 	
 	@Autowired
-	private NoteService noteService;
+	private INoteService noteService;
 	
 	@PostMapping("/create")
 	public ResponseEntity<?> createNote(@RequestBody NoteDto noteDto){
@@ -86,5 +88,39 @@ public class NoteController {
 		}
 		return GenericResponse.buildResponse("Success", "All notes of user : "+userId, allNotesByUser, HttpStatus.OK);
 	}
+	
+	@GetMapping("/delete/{id}")
+	public ResponseEntity<?> deleteNote(@PathVariable Integer id){
+		noteService.softDeleteNote(id);
+		return GenericResponse.buildResponse("Success", "Note deleted of id "+id, null, HttpStatus.OK);
+	}
 
+	@GetMapping("/restore/{id}")
+	public ResponseEntity<?> restoreNote(@PathVariable Integer id){
+		NoteDto restoredNote = noteService.restoreNoteById(id);
+		return GenericResponse.buildResponse("Success", "Note Restored of id "+id, restoredNote, HttpStatus.OK);
+	}
+	
+	@GetMapping("/recycleBin")
+	public ResponseEntity<?> userRecycleBin(){
+		Integer userId = 1;
+		List<NoteDto> notesInBin = noteService.getUserRecycleBin(userId);
+		if(notesInBin.isEmpty()) {
+			return GenericResponse.buildResponse("Success", "Recycle bin is empty.", notesInBin, HttpStatus.OK);
+		}
+		return GenericResponse.buildResponse("Success", "Notes from recycle bin.", notesInBin, HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/hard-delete/{id}")
+	public ResponseEntity<?> hardDeleteNote(@PathVariable Integer id){
+		noteService.hardDeleteNote(id);
+		return GenericResponse.buildResponse("Success", "Note deleted permanently of id: "+id, null, HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/hard-delete-bin")
+	public ResponseEntity<?> deleteAllFromBin(){
+		Integer userId = 1;
+		noteService.deleteUsersNotesFromRecycleBin(userId );
+		return GenericResponse.buildResponse("Success", "All notes deleted from bin.", null, HttpStatus.OK);
+	}
 }

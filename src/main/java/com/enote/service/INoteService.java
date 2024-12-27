@@ -2,6 +2,7 @@ package com.enote.service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,4 +23,14 @@ public interface INoteService {
 	public FileDetails getFileDetails(Integer id);
 	
 	NotePageDto getAllNotesByUser(Integer userId,Integer pageNo, Integer pageSize);
+	
+	void softDeleteNote(Integer id);
+
+	NoteDto restoreNoteById(Integer id);
+
+	List<NoteDto> getUserRecycleBin(Integer userId);
+	
+	void hardDeleteNote(Integer id);
+
+	void deleteUsersNotesFromRecycleBin(Integer userId);
 }

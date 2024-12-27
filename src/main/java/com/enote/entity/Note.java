@@ -1,5 +1,8 @@
 package com.enote.entity;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
@@ -36,5 +39,9 @@ public class Note extends BaseEntity{
 	
 	@ManyToOne
 	private FileDetails fileDetails;
+	
+	private Boolean isDeleted;
+	
+	private LocalDateTime deletedOn;
 	
 }

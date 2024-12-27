@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -63,6 +64,8 @@ public class NoteService implements INoteService {
 		categoryRepo.findByIdAndIsDeletedFalse(noteDto.getCategory().getId())
 				.orElseThrow(()-> new ResourceNotFoundException("Invalid category id."));
 		
+		
+		
 		Note newNote = mapper.map(noteDto, Note.class);
 		Note savedNote = noteRepo.save(newNote);
 		
@@ -85,6 +88,9 @@ public class NoteService implements INoteService {
 		
 		categoryRepo.findByIdAndIsDeletedFalse(noteDto.getCategory().getId())
 		.orElseThrow(()-> new ResourceNotFoundException("Invalid category id."));
+		
+		noteDto.setIsDeleted(false);
+		noteDto.setDeletedOn(null);
 		
 		Note newNote = mapper.map(noteDto, Note.class);
 		
@@ -177,7 +183,7 @@ public class NoteService implements INoteService {
 	public NotePageDto getAllNotesByUser(Integer userId, Integer pageNo, Integer pageSize) {
 		
 		Pageable pageable = PageRequest.of(pageNo, pageSize);
-		Page<Note> userNotePage = noteRepo.findByCreatedBy(userId, pageable);
+		Page<Note> userNotePage = noteRepo.findByCreatedByAndIsDeletedFalse(userId, pageable);
 		List<Note> notes = userNotePage.getContent();
 		List<NoteDto> noteDtos = notes.stream().map(note -> mapper.map(note, NoteDto.class)).toList();
 		int currentPage = userNotePage.getNumber();
@@ -187,6 +193,50 @@ public class NoteService implements INoteService {
 		boolean isLast = userNotePage.isLast();
 		
 		return NotePageDto.builder().isFirst(isFirst).isLast(isLast).noteDtos(noteDtos).pageNo(currentPage).pageSize(userNotePage.getSize()).totalElements(totalElemets).totalPages(totalPages).build();
+	}
+
+	public void softDeleteNote(Integer id) {
+		Note existingNote = noteRepo.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Note not found of id: "+id));
+		existingNote.setIsDeleted(true);
+		existingNote.setDeletedOn(LocalDateTime.now());
+		noteRepo.save(existingNote);
+	}
+
+	@Override
+	public NoteDto restoreNoteById(Integer id) {
+		Note existingNote = noteRepo.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Note not found of id: "+id));
+		existingNote.setIsDeleted(false);
+		existingNote.setDeletedOn(null);
+		Note restoredNote = noteRepo.save(existingNote);
+		return mapper.map(restoredNote, NoteDto.class);
+	}
+
+	@Override
+	public List<NoteDto> getUserRecycleBin(Integer userId) {
+		Collection<Note> usersDeletedNotes = noteRepo.findByCreatedByAndIsDeletedTrue(userId);
+		return usersDeletedNotes.stream().map(note -> mapper.map(note, NoteDto.class)).toList();
+	}
+
+	@Override
+	public void hardDeleteNote(Integer id) {
+		Note existingNote = noteRepo.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Note not found of id: "+id));
+		
+		if(existingNote.getIsDeleted()) {
+			noteRepo.delete(existingNote);
+		}else {
+			throw new IllegalArgumentException("Sorry!! cannot delete directly");
+		}
+	}
+
+	@Override
+	public void deleteUsersNotesFromRecycleBin(Integer userId) {
+		Collection<Note> softDeletedNotes = noteRepo.findByCreatedByAndIsDeletedTrue(userId);
+		if(!softDeletedNotes.isEmpty()) {
+			noteRepo.deleteAll(softDeletedNotes);
+		}
 	}
 
 }
