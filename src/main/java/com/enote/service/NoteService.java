@@ -27,6 +27,7 @@ import com.enote.dao.CategoryRepository;
 import com.enote.dao.FileRepository;
 import com.enote.dao.NoteRepository;
 import com.enote.dto.NoteDto;
+import com.enote.dto.NoteDto.FileDto;
 import com.enote.dto.NotePageDto;
 import com.enote.entity.FileDetails;
 import com.enote.entity.Note;
@@ -72,6 +73,12 @@ public class NoteService implements INoteService {
 	
 	@Override
 	public NoteDto addNoteWithFile(NoteDto noteDto, MultipartFile file) throws IOException {
+		
+		if(!ObjectUtils.isEmpty(noteDto.getId())) {
+			updateNote(noteDto, file);
+		}
+		
+		
 		if(noteRepo.existsByTitle(noteDto.getTitle())) {
 			throw new ResourceAlreadyExistException(noteDto.getTitle() + " is already present.");
 		}
@@ -85,11 +92,24 @@ public class NoteService implements INoteService {
 		if(!ObjectUtils.isEmpty(fileDetails)) {
 			newNote.setFileDetails(fileDetails);
 		}else {
-			newNote.setFileDetails(null);
+			if(ObjectUtils.isEmpty(noteDto.getId())) {
+				newNote.setFileDetails(null);				
+			}
 		}
 		Note savedNote = noteRepo.save(newNote);
 		NoteDto savedNoteDto = mapper.map(savedNote, NoteDto.class);
 		return savedNoteDto;
+	}
+
+	private void updateNote(NoteDto noteDto, MultipartFile file) {
+		Note existingNote = noteRepo.findById(noteDto.getId())
+		.orElseThrow(() -> new ResourceNotFoundException("Note not found of id: "+noteDto.getId()));
+		
+		if(file.isEmpty()) {
+			FileDto fileDto = mapper.map(existingNote.getFileDetails(), FileDto.class);
+			noteDto.setFileDetails(fileDto);
+		}
+		
 	}
 
 	private FileDetails saveFileDetails(MultipartFile file) throws IOException {
