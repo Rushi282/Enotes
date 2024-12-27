@@ -1,7 +1,9 @@
 package com.enote.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enote.dao.CategoryRepository;
@@ -136,6 +139,15 @@ public class NoteService implements INoteService {
 	@Override
 	public Collection<NoteDto> getAllNotes() {
 		return noteRepo.findAll().stream().map(note -> mapper.map(note, NoteDto.class)).toList();
+	}
+
+	public byte[] downloadFile(FileDetails foundFileDetails) throws IOException {
+		InputStream resourseFile = new FileInputStream(foundFileDetails.getPath());
+		return StreamUtils.copyToByteArray(resourseFile);
+	}
+
+	public FileDetails getFileDetails(Integer id) {
+		return fileRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("File not found of id: "+id));
 	}
 
 }
