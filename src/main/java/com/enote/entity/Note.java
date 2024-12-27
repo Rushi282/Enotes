@@ -2,6 +2,7 @@ package com.enote.entity;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +28,7 @@ public class Note extends BaseEntity{
 	
 	private String title;
 	
+	@Column(length = 10000)
 	private String description;
 	
 	@ManyToOne
