@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enote.dto.GenericResponse;
 import com.enote.dto.NoteDto;
+import com.enote.dto.NotePageDto;
 import com.enote.entity.FileDetails;
 import com.enote.service.NoteService;
 import com.enote.util.CommonUtil;
@@ -70,6 +72,19 @@ public class NoteController {
 			return ResponseEntity.noContent().build();
 		}
 		return GenericResponse.buildResponse("Success", "All notes", allNotes, HttpStatus.OK);
+	}
+	
+	@GetMapping("/user-notes")
+	public ResponseEntity<?> allNotesByUser(
+			@RequestParam(name ="pageNo", defaultValue = "0") Integer pageNo,
+			@RequestParam(name ="pageSize", defaultValue = "5") Integer pageSize
+			){
+		Integer userId = 1;
+		NotePageDto allNotesByUser = noteService.getAllNotesByUser(userId, pageNo, pageSize);
+		if(allNotesByUser.getNoteDtos().isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}
+		return GenericResponse.buildResponse("Success", "All notes of user : "+userId, allNotesByUser, HttpStatus.OK);
 	}
 
 }

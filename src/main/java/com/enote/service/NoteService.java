@@ -15,6 +15,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
@@ -24,6 +27,7 @@ import com.enote.dao.CategoryRepository;
 import com.enote.dao.FileRepository;
 import com.enote.dao.NoteRepository;
 import com.enote.dto.NoteDto;
+import com.enote.dto.NotePageDto;
 import com.enote.entity.FileDetails;
 import com.enote.entity.Note;
 import com.enote.exception.ResourceAlreadyExistException;
@@ -148,6 +152,21 @@ public class NoteService implements INoteService {
 
 	public FileDetails getFileDetails(Integer id) {
 		return fileRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("File not found of id: "+id));
+	}
+
+	public NotePageDto getAllNotesByUser(Integer userId, Integer pageNo, Integer pageSize) {
+		
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Page<Note> userNotePage = noteRepo.findByCreatedBy(userId, pageable);
+		List<Note> notes = userNotePage.getContent();
+		List<NoteDto> noteDtos = notes.stream().map(note -> mapper.map(note, NoteDto.class)).toList();
+		int currentPage = userNotePage.getNumber();
+		long totalElemets = userNotePage.getTotalElements();
+		int totalPages = userNotePage.getTotalPages();
+		boolean isFirst = userNotePage.isFirst();
+		boolean isLast = userNotePage.isLast();
+		
+		return NotePageDto.builder().isFirst(isFirst).isLast(isLast).noteDtos(noteDtos).pageNo(currentPage).pageSize(userNotePage.getSize()).totalElements(totalElemets).totalPages(totalPages).build();
 	}
 
 }

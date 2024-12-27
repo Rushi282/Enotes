@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enote.dto.NoteDto;
+import com.enote.dto.NotePageDto;
 import com.enote.entity.FileDetails;
 
 public interface INoteService {
@@ -19,4 +20,6 @@ public interface INoteService {
 	byte[] downloadFile(FileDetails foundFileDetails) throws IOException;
 	
 	public FileDetails getFileDetails(Integer id);
+	
+	NotePageDto getAllNotesByUser(Integer userId,Integer pageNo, Integer pageSize);
 }
