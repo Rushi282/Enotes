@@ -25,11 +25,14 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enote.dao.CategoryRepository;
+import com.enote.dao.FavouriteNoteRepository;
 import com.enote.dao.FileRepository;
 import com.enote.dao.NoteRepository;
+import com.enote.dto.FavouriteNoteDto;
 import com.enote.dto.NoteDto;
 import com.enote.dto.NoteDto.FileDto;
 import com.enote.dto.NotePageDto;
+import com.enote.entity.FavouriteNote;
 import com.enote.entity.FileDetails;
 import com.enote.entity.Note;
 import com.enote.exception.ResourceAlreadyExistException;
@@ -52,6 +55,9 @@ public class NoteService implements INoteService {
 	
 	@Autowired
 	private FileRepository fileRepo;
+	
+	@Autowired
+	private FavouriteNoteRepository favouriteNoteRepo;
 
 	@Override
 	public NoteDto addNote(NoteDto noteDto) {
@@ -238,5 +244,33 @@ public class NoteService implements INoteService {
 			noteRepo.deleteAll(softDeletedNotes);
 		}
 	}
+
+	@Override
+	public void favNote(Integer noteId) {
+		int userId = 1;
+		Note existingNote = noteRepo.findById(noteId)
+				.orElseThrow(() -> new ResourceNotFoundException("Note not found of id: "+noteId));
+		
+		FavouriteNote favouriteNote = FavouriteNote.builder()
+				.note(existingNote)
+				.userId(userId).build();
+		favouriteNoteRepo.save(favouriteNote);
+	}
+
+	@Override
+	public void unFavNote(Integer favNoteId) {
+		FavouriteNote existingFavNote = favouriteNoteRepo.findById(favNoteId)
+				.orElseThrow(() -> new ResourceNotFoundException("Note not found of id: "+favNoteId));
+		favouriteNoteRepo.delete(existingFavNote);
+	}
+
+	@Override
+	public List<FavouriteNoteDto> getFavNotesOfUser() {
+		int userId = 1;
+		List<FavouriteNote> userFavNotes = favouriteNoteRepo.findByUserId(userId);
+		return userFavNotes.stream().map(fav -> mapper.map(fav, FavouriteNoteDto.class)).toList();
+	}
+	
+	
 
 }

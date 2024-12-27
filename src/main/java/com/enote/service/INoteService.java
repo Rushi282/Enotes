@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.enote.dto.FavouriteNoteDto;
 import com.enote.dto.NoteDto;
 import com.enote.dto.NotePageDto;
 import com.enote.entity.FileDetails;
@@ -33,4 +34,10 @@ public interface INoteService {
 	void hardDeleteNote(Integer id);
 
 	void deleteUsersNotesFromRecycleBin(Integer userId);
+	
+	void favNote(Integer noteId);
+	
+	void unFavNote(Integer noteId);
+	
+	List<FavouriteNoteDto> getFavNotesOfUser();
 }
