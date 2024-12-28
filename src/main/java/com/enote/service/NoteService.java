@@ -270,7 +270,24 @@ public class NoteService implements INoteService {
 		List<FavouriteNote> userFavNotes = favouriteNoteRepo.findByUserId(userId);
 		return userFavNotes.stream().map(fav -> mapper.map(fav, FavouriteNoteDto.class)).toList();
 	}
-	
-	
+
+	@Override
+	public NoteDto copyNote(Integer noteId) {
+		Note existingNote = noteRepo.findById(noteId)
+				.orElseThrow(() -> new ResourceNotFoundException("Note not found of id: "+noteId));
+		
+		Note copyNote = Note.builder()
+				.category(existingNote.getCategory())
+				.deletedOn(null)
+				.description(existingNote.getDescription())
+				.fileDetails(null)
+				.isDeleted(false)
+				.title(existingNote.getTitle()+" copy")
+				.build();
+		
+		// TODO : need to check user validation
+		Note savedNote = noteRepo.save(copyNote);
+		return mapper.map(savedNote, NoteDto.class);
+	}
 
 }
