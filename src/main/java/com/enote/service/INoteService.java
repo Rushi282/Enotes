@@ -40,4 +40,6 @@ public interface INoteService {
 	void unFavNote(Integer noteId);
 	
 	List<FavouriteNoteDto> getFavNotesOfUser();
+
+	NoteDto copyNote(Integer noteId);
 }

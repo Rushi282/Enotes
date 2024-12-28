@@ -145,4 +145,10 @@ public class NoteController {
 		}
 		return GenericResponse.buildResponse("Success","Favourite notes", favNotesOfUser, HttpStatus.OK);
 	}
+	
+	@GetMapping("/copy/{noteId}")
+	public ResponseEntity<?> copyNote(@PathVariable Integer noteId){
+		NoteDto copiedNote = noteService.copyNote(noteId);
+		return GenericResponse.buildResponse("Success", "Note copied.", copiedNote, HttpStatus.CREATED);
+	}
 }
