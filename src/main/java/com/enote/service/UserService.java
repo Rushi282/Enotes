@@ -5,12 +5,19 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import com.enote.config.security.CustomUserDetails;
 import com.enote.dao.RoleRepository;
 import com.enote.dao.UserRepository;
 import com.enote.dto.EmailRequest;
+import com.enote.dto.LoginRequest;
+import com.enote.dto.LoginResponse;
 import com.enote.dto.UserDto;
 import com.enote.entity.AccountStatus;
 import com.enote.entity.Role;
@@ -34,6 +41,12 @@ public class UserService implements IUserService {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private PasswordEncoder encoder;
 
 	@Override
 	public Boolean register(UserDto userDto) throws Exception {
@@ -46,7 +59,7 @@ public class UserService implements IUserService {
 		AccountStatus status = AccountStatus.builder().isActive(false)
 								.verificationCode(UUID.randomUUID().toString()).build();
 		newUser.setStatus(status);
-		
+		newUser.setPassword(encoder.encode(newUser.getPassword()));
 		User savedUser = userRepo.save(newUser);
 		
 		if(!ObjectUtils.isEmpty(savedUser)) {
@@ -82,6 +95,21 @@ public class UserService implements IUserService {
 		List<Integer> roleIds = userDto.getRoles().stream().map(role -> role.getId()).toList();
 		List<Role> roles = roleRepo.findAllById(roleIds);
 		newUser.setRoles(roles);
+	}
+
+	public LoginResponse login(LoginRequest loginRequest) {
+		Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+		if(authenticate.isAuthenticated()) {
+			CustomUserDetails customUserDetails = (CustomUserDetails)authenticate.getPrincipal();
+			String token = "hgdydxyctygcjhcgjhstrszgfjjf";
+			LoginResponse loginResponse = LoginResponse.builder()
+											.userDto(mapper
+													.map(customUserDetails.getUser(), UserDto.class))
+											.token(token)
+											.build();
+			return loginResponse;
+		}
+		return null;
 	}
 
 }

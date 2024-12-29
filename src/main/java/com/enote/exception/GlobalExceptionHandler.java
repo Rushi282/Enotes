@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -50,5 +51,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(SuccessException.class)
 	public ProblemDetail handleSuccessException(SuccessException e) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.OK, e.getMessage());
+	}
+	
+//	BadCredentialsException
+	@ExceptionHandler(BadCredentialsException.class)
+	public ProblemDetail handleBadCredentialsException(BadCredentialsException e) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
 	}
 }

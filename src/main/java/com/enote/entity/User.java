@@ -39,7 +39,7 @@ public class User {
 	
 	private String mobileNo;
 	
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Role> roles;
 	
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
