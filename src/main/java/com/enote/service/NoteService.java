@@ -70,8 +70,6 @@ public class NoteService implements INoteService {
 		categoryRepo.findByIdAndIsDeletedFalse(noteDto.getCategory().getId())
 				.orElseThrow(()-> new ResourceNotFoundException("Invalid category id."));
 		
-		
-		
 		Note newNote = mapper.map(noteDto, Note.class);
 		Note savedNote = noteRepo.save(newNote);
 		
@@ -86,7 +84,6 @@ public class NoteService implements INoteService {
 		if(!ObjectUtils.isEmpty(noteDto.getId())) {
 			updateNote(noteDto, file);
 		}
-		
 		
 		if(noteRepo.existsByTitle(noteDto.getTitle())) {
 			throw new ResourceAlreadyExistException(noteDto.getTitle() + " is already present.");
