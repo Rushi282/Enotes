@@ -45,4 +45,10 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleIllegalArgumentException(IllegalArgumentException e) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
 	}
+	
+//	SuccessException
+	@ExceptionHandler(SuccessException.class)
+	public ProblemDetail handleSuccessException(SuccessException e) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.OK, e.getMessage());
+	}
 }
