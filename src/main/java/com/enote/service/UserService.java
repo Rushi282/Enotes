@@ -9,6 +9,7 @@ import org.springframework.util.ObjectUtils;
 
 import com.enote.dao.RoleRepository;
 import com.enote.dao.UserRepository;
+import com.enote.dto.EmailRequest;
 import com.enote.dto.UserDto;
 import com.enote.entity.Role;
 import com.enote.entity.User;
@@ -28,9 +29,12 @@ public class UserService implements IUserService {
 	
 	@Autowired
 	private ModelMapper mapper;
+	
+	@Autowired
+	private EmailService emailService;
 
 	@Override
-	public Boolean register(UserDto userDto) {
+	public Boolean register(UserDto userDto) throws Exception {
 		commonUtil.validateUser(userDto);
 		
 		User newUser = mapper.map(userDto, User.class);
@@ -40,9 +44,28 @@ public class UserService implements IUserService {
 		User savedUser = userRepo.save(newUser);
 		
 		if(!ObjectUtils.isEmpty(savedUser)) {
+			sendEmail(savedUser);
 			return true;
 		}
 		return false;
+	}
+
+	private void sendEmail(User savedUser) throws Exception {
+		
+		String message = "<h2> Hii, "+savedUser.getFirstName()+"</h2><br/>"
+						+"Your account created successfully.<br/>"
+						+"Click below link to verify your account.<br/>"
+						+"<a href='#'>Click here</a><br/><br/>"
+						+"Thanks <b>Enotes.com</b>";
+		
+		EmailRequest emailRequest = EmailRequest.builder()
+										.to(savedUser.getEmail())
+										.subject("Account created scuccessfully!!!")
+										.title("Account creating confirmation")
+										.message(message)
+										.build();
+		
+		emailService.sendMail(emailRequest);
 	}
 
 	private void setRoles(UserDto userDto,User newUser) {

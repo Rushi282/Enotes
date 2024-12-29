@@ -13,14 +13,14 @@ import com.enote.dto.UserDto;
 import com.enote.service.UserService;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
 	@Autowired
 	private UserService userService;
 	
 	@PostMapping("/regi")
-	public ResponseEntity<?> registerUser(@RequestBody UserDto userDto){
+	public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) throws Exception{
 		Boolean isRegistered = userService.register(userDto);
 		if(isRegistered) {
 			return GenericResponse.buildResponse("Success", "User Registered.", null, HttpStatus.CREATED);
