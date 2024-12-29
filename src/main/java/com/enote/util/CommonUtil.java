@@ -1,14 +1,26 @@
 package com.enote.util;
 
-import org.apache.commons.io.FilenameUtils;
+import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import com.enote.dao.RoleRepository;
 import com.enote.dto.TodoDto;
 import com.enote.dto.TodoDto.TodoPriorityDto;
 import com.enote.dto.TodoDto.TodoStatusDto;
+import com.enote.dto.UserDto;
 import com.enote.enums.TodoPriority;
 import com.enote.enums.TodoStatus;
 
+@Component
 public class CommonUtil {
+	
+	@Autowired
+	private RoleRepository roleRepo;
 
 	public static String getContentType(String originalFileName) {
 		String extension = FilenameUtils.getExtension(originalFileName);
@@ -61,6 +73,42 @@ public class CommonUtil {
 		
 		if(!foundPriority) {
 			throw new IllegalArgumentException("Invalid priority !!");
+		}
+	}
+	
+	public void validateUser(UserDto userDto) {
+		if(!StringUtils.hasText(userDto.getFirstName())) {
+			throw new IllegalArgumentException("First name is invalid!");
+		}
+		
+		if(!StringUtils.hasText(userDto.getLastName())) {
+			throw new IllegalArgumentException("Last name is invalid!");
+		}
+		
+		if(!StringUtils.hasText(userDto.getEmail()) || !userDto.getEmail().matches(Constants.EMAIL_REGEX)) {
+			throw new IllegalArgumentException("email is invalid!");
+		}
+		
+		if(!StringUtils.hasText(userDto.getPassword()) || !userDto.getPassword().matches(Constants.PASSWORD_REGEX)) {
+			throw new IllegalArgumentException("password is invalid!");
+		}
+		
+		if(!StringUtils.hasText(userDto.getMobileNo()) || !userDto.getMobileNo().matches(Constants.MOBILE_REGEX)) {
+			throw new IllegalArgumentException("Mobile number is invalid!");
+		}
+		
+		if(CollectionUtils.isEmpty(userDto.getRoles())) {
+			throw new IllegalArgumentException("Role is invalid!");
+		}else {
+			List<Integer> availRoleIds = roleRepo.findAll().stream().map(role -> role.getId()).toList();
+			
+			List<Integer> invalidRoleIds = userDto.getRoles().stream()
+			.map(role -> role.getId())
+			.filter(roleId -> !availRoleIds.contains(roleId)).toList();
+			
+			if(!CollectionUtils.isEmpty(invalidRoleIds)) {
+				throw new IllegalArgumentException("Role is invalid!");
+			}
 		}
 	}
 }
