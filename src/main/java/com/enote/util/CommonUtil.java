@@ -9,18 +9,23 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.enote.dao.RoleRepository;
+import com.enote.dao.UserRepository;
 import com.enote.dto.TodoDto;
 import com.enote.dto.TodoDto.TodoPriorityDto;
 import com.enote.dto.TodoDto.TodoStatusDto;
 import com.enote.dto.UserDto;
 import com.enote.enums.TodoPriority;
 import com.enote.enums.TodoStatus;
+import com.enote.exception.ResourceAlreadyExistException;
 
 @Component
 public class CommonUtil {
 	
 	@Autowired
 	private RoleRepository roleRepo;
+	
+	@Autowired
+	private UserRepository userRepo;
 
 	public static String getContentType(String originalFileName) {
 		String extension = FilenameUtils.getExtension(originalFileName);
@@ -87,6 +92,8 @@ public class CommonUtil {
 		
 		if(!StringUtils.hasText(userDto.getEmail()) || !userDto.getEmail().matches(Constants.EMAIL_REGEX)) {
 			throw new IllegalArgumentException("email is invalid!");
+		}else if(userRepo.existsByEmail(userDto.getEmail())) {
+			throw new ResourceAlreadyExistException("Email already used.");
 		}
 		
 		if(!StringUtils.hasText(userDto.getPassword()) || !userDto.getPassword().matches(Constants.PASSWORD_REGEX)) {
