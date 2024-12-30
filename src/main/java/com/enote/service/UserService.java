@@ -47,6 +47,9 @@ public class UserService implements IUserService {
 	
 	@Autowired
 	private PasswordEncoder encoder;
+	
+	@Autowired
+	private JwtService jwtService;
 
 	@Override
 	public Boolean register(UserDto userDto) throws Exception {
@@ -101,7 +104,8 @@ public class UserService implements IUserService {
 		Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 		if(authenticate.isAuthenticated()) {
 			CustomUserDetails customUserDetails = (CustomUserDetails)authenticate.getPrincipal();
-			String token = "hgdydxyctygcjhcgjhstrszgfjjf";
+//			String token = "hgdydxyctygcjhcgjhstrszgfjjf";
+			String token = jwtService.generateToken(customUserDetails.getUser());
 			LoginResponse loginResponse = LoginResponse.builder()
 											.userDto(mapper
 													.map(customUserDetails.getUser(), UserDto.class))
