@@ -9,10 +9,12 @@ import java.util.Map;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.enote.entity.User;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -20,7 +22,8 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService implements IJwtService {
 	
-	private String secreteKey;
+//	private String secreteKey ="gfjfdhfjgfhgfuytecytdvkjdvdkfjdkxjvhfjdfvfjdfvkdjh";
+	private String secreteKey = "";
 	
 	public JwtService() {
 		try {
@@ -44,7 +47,7 @@ public class JwtService implements IJwtService {
 		.claims().add(claims)
 		.subject(user.getEmail())
 		.issuedAt(new Date(System.currentTimeMillis()))
-		.expiration(new Date(System.currentTimeMillis()+60*60*10))
+		.expiration(new Date(System.currentTimeMillis()+60*60*60*10))
 		.and()
 		.signWith(getKey())
 		.compact();
@@ -54,6 +57,48 @@ public class JwtService implements IJwtService {
 	private Key getKey() {
 		byte[] key = Decoders.BASE64.decode(secreteKey);
 		return Keys.hmacShaKeyFor(key);
+	}
+	
+	@Override
+	public String extractUserName(String token) {
+		Claims claims = extractClaims(token);
+		return claims.getSubject();
+	}
+	
+	private Claims extractClaims(String token) {
+		Claims claims = Jwts.parser()
+		.verifyWith(decryptKey())
+		.build()
+		.parseSignedClaims(token)
+		.getPayload();
+		return claims;
+	}
+
+	private SecretKey decryptKey() {
+		byte[] key = Decoders.BASE64.decode(secreteKey);
+		return Keys.hmacShaKeyFor(key);
+	}
+	
+	public String extractRole(String token) {
+		Claims claims = extractClaims(token);
+		String role = (String)claims.get("role");
+		return role;
+	}
+
+	@Override
+	public Boolean validateToken(String token, UserDetails userDetails) {
+		String userName = extractUserName(token);
+		Claims claims = extractClaims(token);
+		Boolean isExpired = isTokenExpired(claims);
+		if(userName.equalsIgnoreCase(userDetails.getUsername()) && !isExpired ) {
+			return true;			
+		}
+		return false;
+	}
+
+	private Boolean isTokenExpired(Claims claims) {
+		Date expiredDate = claims.getExpiration();
+		return expiredDate.before(new Date());
 	}
 
 }
