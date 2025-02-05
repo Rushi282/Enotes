@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import com.enote.entity.User;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -66,12 +68,17 @@ public class JwtService implements IJwtService {
 	}
 	
 	private Claims extractClaims(String token) {
-		Claims claims = Jwts.parser()
-		.verifyWith(decryptKey())
-		.build()
-		.parseSignedClaims(token)
-		.getPayload();
-		return claims;
+		try {
+			return Jwts.parser()
+			.verifyWith(decryptKey())
+			.build()
+			.parseSignedClaims(token)
+			.getPayload();
+		} catch (ExpiredJwtException e) {
+			throw new ExpiredJwtException(null, null, "Token is expired");
+		} catch (JwtException e) {
+			throw new JwtException("Invalid token");
+		}
 	}
 
 	private SecretKey decryptKey() {

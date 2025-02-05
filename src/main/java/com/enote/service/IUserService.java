@@ -8,4 +8,6 @@ public interface IUserService {
 	Boolean register(UserDto userDto) throws Exception;
 	
 	LoginResponse login(LoginRequest loginRequest);
+	
+	Boolean softDelete(Integer id);
 }

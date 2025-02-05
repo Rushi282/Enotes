@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,17 +25,20 @@ public class TodoController {
 	private ITodoService todoService;
 	
 	@PostMapping("/add")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> addTodo(@RequestBody TodoDto dto){
 		return GenericResponse.buildResponse("Success", "ToDo created", todoService.addTodo(dto), HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> getTodo(@PathVariable Integer id){
 		return GenericResponse.buildResponse("Success", "ToDo of id: "+id, 
 				todoService.getTodoById(id), HttpStatus.OK);
 	}
 	
 	@GetMapping("/")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> getTodosOfUser(){
 		Collection<TodoDto> usersTodo = todoService.getTodosByUser();
 		if(usersTodo.isEmpty()) {

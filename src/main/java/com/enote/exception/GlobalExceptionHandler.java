@@ -58,4 +58,10 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleBadCredentialsException(BadCredentialsException e) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
 	}
+	
+//	AccountInActiveException
+	@ExceptionHandler(AccountInActiveException.class)
+	public ProblemDetail handleAccountInActiveException(AccountInActiveException e) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_ACCEPTABLE, e.getMessage());
+	}
 }

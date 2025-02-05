@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,7 @@ public class CategoryController {
 	private ICategoryService categoryService;
 
 	@PostMapping("/add-category")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryDto) throws Exception{
 		categoryService.add(categoryDto);
 //		return new ResponseEntity<>("Category added successfully.",HttpStatus.CREATED);
@@ -34,6 +36,7 @@ public class CategoryController {
 	}
 	
 	@GetMapping("/")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getAllCategory(){
 		Collection<CategoryDto> allCategories = categoryService.all();
 		if(CollectionUtils.isEmpty(allCategories)) {
@@ -44,6 +47,7 @@ public class CategoryController {
 	}
 	
 	@GetMapping("/active-category")
+	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	public ResponseEntity<?> getAllActiveCategory(){
 		Collection<CategoryResponse> allCategories = categoryService.activeCategory();
 		if(CollectionUtils.isEmpty(allCategories)) {
@@ -54,12 +58,14 @@ public class CategoryController {
 	}
 	
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	public ResponseEntity<?> getCategoryById(@PathVariable Integer id){
 		CategoryDto categoryDto = categoryService.categoryById(id);
 		return GenericResponse.buildResponse("Success", "Found category", categoryDto, HttpStatus.OK);
 	}
 	
 	@DeleteMapping("delete/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id) throws Exception{
 		Boolean isDeleted = categoryService.deleteCategory(id);
 		if(isDeleted) {
