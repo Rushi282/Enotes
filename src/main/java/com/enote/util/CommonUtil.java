@@ -4,19 +4,23 @@ import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.enote.config.security.CustomUserDetails;
 import com.enote.dao.RoleRepository;
 import com.enote.dao.UserRepository;
 import com.enote.dto.TodoDto;
 import com.enote.dto.TodoDto.TodoPriorityDto;
 import com.enote.dto.TodoDto.TodoStatusDto;
 import com.enote.dto.UserDto;
+import com.enote.entity.User;
 import com.enote.enums.TodoPriority;
 import com.enote.enums.TodoStatus;
 import com.enote.exception.ResourceAlreadyExistException;
+import com.enote.exception.ResourceNotFoundException;
 
 @Component
 public class CommonUtil {
@@ -116,6 +120,15 @@ public class CommonUtil {
 			if(!CollectionUtils.isEmpty(invalidRoleIds)) {
 				throw new IllegalArgumentException("Role is invalid!");
 			}
+		}
+	}
+	
+	public User getLoggingUser() {
+		try {
+			CustomUserDetails userDetails = (CustomUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			return userDetails.getUser();
+		} catch (Exception e) {
+			throw new ResourceNotFoundException("Please login !!");
 		}
 	}
 }

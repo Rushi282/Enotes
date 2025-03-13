@@ -26,6 +26,7 @@ import com.enote.dto.GenericResponse;
 import com.enote.dto.NoteDto;
 import com.enote.dto.NotePageDto;
 import com.enote.entity.FileDetails;
+import com.enote.entity.User;
 import com.enote.service.INoteService;
 import com.enote.util.CommonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,6 +39,9 @@ public class NoteController {
 	
 	@Autowired
 	private INoteService noteService;
+	
+	@Autowired
+	private CommonUtil commonUtil;
 	
 	@PostMapping("/create")
 	@PreAuthorize("hasRole('USER')")
@@ -82,18 +86,20 @@ public class NoteController {
 		return GenericResponse.buildResponse("Success", "All notes", allNotes, HttpStatus.OK);
 	}
 	
+	//get userId from contextHolder
 	@GetMapping("/user-notes")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> allNotesByUser(
 			@RequestParam(name ="pageNo", defaultValue = "0") Integer pageNo,
 			@RequestParam(name ="pageSize", defaultValue = "5") Integer pageSize
 			){
-		Integer userId = 1;
-		NotePageDto allNotesByUser = noteService.getAllNotesByUser(userId, pageNo, pageSize);
+//		Integer userId = 1;
+		User loggedInUser = commonUtil.getLoggingUser();
+		NotePageDto allNotesByUser = noteService.getAllNotesByUser(loggedInUser.getId(), pageNo, pageSize);
 		if(allNotesByUser.getNoteDtos().isEmpty()) {
 			return ResponseEntity.noContent().build();
 		}
-		return GenericResponse.buildResponse("Success", "All notes of user : "+userId, allNotesByUser, HttpStatus.OK);
+		return GenericResponse.buildResponse("Success", "All notes of user : "+loggedInUser.getId(), allNotesByUser, HttpStatus.OK);
 	}
 	
 	@GetMapping("/delete/{id}")
@@ -110,11 +116,13 @@ public class NoteController {
 		return GenericResponse.buildResponse("Success", "Note Restored of id "+id, restoredNote, HttpStatus.OK);
 	}
 	
+	//get userId from contextHolder
 	@GetMapping("/recycleBin")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> userRecycleBin(){
-		Integer userId = 1;
-		List<NoteDto> notesInBin = noteService.getUserRecycleBin(userId);
+//		Integer userId = 1;
+		User loggedInUser = commonUtil.getLoggingUser();
+		List<NoteDto> notesInBin = noteService.getUserRecycleBin(loggedInUser.getId());
 		if(notesInBin.isEmpty()) {
 			return GenericResponse.buildResponse("Success", "Recycle bin is empty.", notesInBin, HttpStatus.OK);
 		}
@@ -128,11 +136,13 @@ public class NoteController {
 		return GenericResponse.buildResponse("Success", "Note deleted permanently of id: "+id, null, HttpStatus.OK);
 	}
 	
+	//get userId from contextHolder
 	@DeleteMapping("/hard-delete-bin")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> deleteAllFromBin(){
-		Integer userId = 1;
-		noteService.deleteUsersNotesFromRecycleBin(userId );
+//		Integer userId = 1;
+		User loggedInUser = commonUtil.getLoggingUser();
+		noteService.deleteUsersNotesFromRecycleBin(loggedInUser.getId());
 		return GenericResponse.buildResponse("Success", "All notes deleted from bin.", null, HttpStatus.OK);
 	}
 	
